@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using Amazon;
 using Amazon.SQS;
 using Amazon.SQS.Model;
@@ -60,6 +61,15 @@ namespace SimpleAmazonSQS
             });
         }
 
+        public virtual void DeleteMessage(string receiptHandle)
+        {
+            _amazonSqsClient.DeleteMessage(new DeleteMessageRequest
+            {
+                ReceiptHandle = receiptHandle,
+                QueueUrl = _configuration.QueueUrl
+            });
+        }
+
         public IEnumerable<Guid> Dequeue(int messageCount = 1)
         {
             if (messageCount < 1 || messageCount > 10)
@@ -82,6 +92,8 @@ namespace SimpleAmazonSQS
                     {
                         yield return guid;
                     }
+
+                    DeleteMessage(message.ReceiptHandle);
                 }
             }
         }

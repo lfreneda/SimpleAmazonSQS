@@ -115,7 +115,10 @@ namespace SimpleAmazonSQS.Tests
         [Test]
         public void Dequeue_GivenMessaCountGreaterThan10_ShouldThrowsException()
         {
-            Action act = () => _amazonQueueService.Dequeue(messageCount: 11).ToList();
+            Action act = () =>
+            {
+                var messages = _amazonQueueService.Dequeue(messageCount: 11).ToList();
+            };
 
             act.ShouldThrow<ArgumentOutOfRangeException>()
                .WithMessage("messageCount must be between 1 and 10.\r\nParameter name: messageCount");
@@ -124,7 +127,10 @@ namespace SimpleAmazonSQS.Tests
         [Test]
         public void Dequeue_GivenMessaCountLessThan1_ShouldThrowsException()
         {
-            Action act = () => _amazonQueueService.Dequeue(messageCount: 0).ToList();
+            Action act = () =>
+            {
+                var messages = _amazonQueueService.Dequeue(messageCount: 0).ToList();
+            };
 
             act.ShouldThrow<ArgumentOutOfRangeException>()
                .WithMessage("messageCount must be between 1 and 10.\r\nParameter name: messageCount");
@@ -207,6 +213,34 @@ namespace SimpleAmazonSQS.Tests
                 new Guid("9e3098ce-47c0-4610-9dbc-802a64ebd757"),
                 new Guid("9e3098ce-47c0-4610-9dbc-802a64ebd757"),
             });
+        }
+
+        [Test]
+        public void Dequeue_WhenDequeing_DeleteMessageShouldBeCalledForEachMessage()
+        {
+            _fakeAmazonSqs.Setup(c => c.ReceiveMessage(It.IsAny<ReceiveMessageRequest>()))
+              .Returns(new ReceiveMessageResponse
+              {
+                  Messages = new List<Message>
+                              {
+                                  new Message { Body = "9e3098ce-47c0-4610-9dbc-802a64ebd757" },
+                                  new Message { Body = "im not a guid :-) what is going to happen?" },
+                                  new Message { Body = "9e3098ce-47c0-4610-9dbc-802a64ebd757" }
+                              }
+              });
+
+            var messages = _amazonQueueService.Dequeue(messageCount: 3).ToList();
+
+            _fakeAmazonSqs.Verify(c => c.DeleteMessage(It.IsAny<DeleteMessageRequest>()), Times.Exactly(3));
+        }
+
+        [Test]
+        public void DeleteMessage_ShouldCallDeleteMessageOnAmazonClient()
+        {
+            _amazonQueueService.DeleteMessage("receiptHandle");
+
+            _fakeAmazonSqs.Verify(
+                c => c.DeleteMessage(It.Is<DeleteMessageRequest>(p => p.QueueUrl == "http://queueurl.aws.com" && p.ReceiptHandle == "receiptHandle")), Times.Once);
         }
     }
 }
