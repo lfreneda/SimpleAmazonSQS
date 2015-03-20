@@ -18,5 +18,10 @@ namespace SimpleAmazonSQS.Configuration
         {
             get { return ConfigurationManager.AppSettings["simpleAmazonSQS.queueUrl"]; }
         }
+
+        public string ServiceUrl
+        {
+            get { return ConfigurationManager.AppSettings["simpleAmazonSQS.serviceUrl"]; }
+        }
     }
 }

@@ -26,7 +26,7 @@ namespace SimpleAmazonSQS
         }
 
         public AmazonQueueService(IConfiguration configuration)
-            : this(configuration, AWSClientFactory.CreateAmazonSQSClient(configuration.AccessKey, configuration.SecretKey))
+            : this(configuration, AWSClientFactory.CreateAmazonSQSClient(configuration.AccessKey, configuration.SecretKey, new AmazonSQSConfig { ServiceURL = configuration.ServiceUrl }))
         {
 
         }
