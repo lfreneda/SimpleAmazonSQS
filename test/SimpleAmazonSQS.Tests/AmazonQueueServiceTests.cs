@@ -79,6 +79,15 @@ namespace SimpleAmazonSQS.Tests
         [Test]
         public void Enqueue_GivenAGuid_ShouldCallAmazonClientWithExpectedData()
         {
+            _fakeAmazonSqs.Setup(c => c.ListQueues(It.IsAny<ListQueuesRequest>()))
+              .Returns(new ListQueuesResponse
+              {
+                  QueueUrls = new List<string>
+                              {
+                                  "http://queueurl.aws.com"
+                              }
+              });
+
             var id = Guid.NewGuid();
             var idAsString = id.ToString();
 
@@ -87,6 +96,18 @@ namespace SimpleAmazonSQS.Tests
             _fakeAmazonSqs.Verify(mock => mock.SendMessage(
                 It.Is<SendMessageRequest>(c => c.QueueUrl == "http://queueurl.aws.com" && c.MessageBody == idAsString)
             ), Times.Once);
+        }
+
+        [Test]
+        public void Enqueue_IfQueueDoNotExists_ShouldThrowsException()
+        {
+            var amazonQueueService = new Mock<AmazonQueueService>();
+            amazonQueueService.Setup(c => c.QueueExists()).Returns(false);
+
+            Action act = () => _amazonQueueService.Enqueue(Guid.NewGuid());
+
+            act.ShouldThrow<SimpleAmazonSqsException>()
+                .WithMessage("Queue is not available or could not be created.");
         }
 
         [Test]
@@ -124,7 +145,7 @@ namespace SimpleAmazonSQS.Tests
                           .Returns<ReceiveMessageResponse>(null);
 
             var messages = _amazonQueueService.Dequeue();
-            
+
             messages.ToList().Should().BeEmpty();
         }
 

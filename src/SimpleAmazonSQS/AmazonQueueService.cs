@@ -13,6 +13,10 @@ namespace SimpleAmazonSQS
         private readonly IAmazonSQS _amazonSqsClient;
         private bool? _queueExists = null;
 
+        protected AmazonQueueService()
+        {
+        }
+
         internal AmazonQueueService(IConfiguration configuration, IAmazonSQS amazonSqsClient)
         {
             _configuration = configuration;
@@ -40,12 +44,17 @@ namespace SimpleAmazonSQS
             return _queueExists.Value;
         }
 
-        public virtual void Enqueue(Guid guid)
+        public virtual void Enqueue(Guid id)
         {
+            if (!QueueExists())
+            {
+                throw new SimpleAmazonSqsException("Queue is not available or could not be created.");
+            }
+
             _amazonSqsClient.SendMessage(new SendMessageRequest
             {
                 QueueUrl = _configuration.QueueUrl,
-                MessageBody = guid.ToString()
+                MessageBody = id.ToString()
             });
         }
 
@@ -73,6 +82,14 @@ namespace SimpleAmazonSQS
                     }
                 }
             }
+        }
+    }
+
+    public class SimpleAmazonSqsException : ApplicationException
+    {
+        public SimpleAmazonSqsException(string message)
+            : base(message)
+        {
         }
     }
 
