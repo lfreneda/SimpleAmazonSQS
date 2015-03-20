@@ -4,6 +4,8 @@ using System.Linq;
 using Amazon;
 using Amazon.SQS;
 using Amazon.SQS.Model;
+using SimpleAmazonSQS.Configuration;
+using SimpleAmazonSQS.Exception;
 
 namespace SimpleAmazonSQS
 {
@@ -83,27 +85,5 @@ namespace SimpleAmazonSQS
                 }
             }
         }
-    }
-
-    public class SimpleAmazonSqsException : ApplicationException
-    {
-        public SimpleAmazonSqsException(string message)
-            : base(message)
-        {
-        }
-    }
-
-    public interface IConfiguration
-    {
-        string AccessKey { get; }
-        string SecretKey { get; }
-        string QueueUrl { get; }
-    }
-
-    public class CustomConfiguration : IConfiguration
-    {
-        public string AccessKey { get; set; }
-        public string SecretKey { get; set; }
-        public string QueueUrl { get; set; }
     }
 }

@@ -8,6 +8,8 @@ using Amazon.SQS.Model;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using SimpleAmazonSQS.Configuration;
+using SimpleAmazonSQS.Exception;
 
 namespace SimpleAmazonSQS.Tests
 {
