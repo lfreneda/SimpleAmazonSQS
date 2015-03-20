@@ -96,5 +96,17 @@ namespace SimpleAmazonSQS
                 }
             }
         }
+
+        public int Count()
+        {
+            var response = _amazonSqsClient.GetQueueAttributes(new GetQueueAttributesRequest
+            {
+                QueueUrl = _configuration.QueueUrl,
+                AttributeNames = new List<string>(new[] { "ApproximateNumberOfMessages" })
+            });
+
+            if (response == null) return 0;
+            return response.ApproximateNumberOfMessages;
+        }
     }
 }

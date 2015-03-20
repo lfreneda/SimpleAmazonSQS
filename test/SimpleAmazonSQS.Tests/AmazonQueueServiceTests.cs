@@ -95,8 +95,8 @@ namespace SimpleAmazonSQS.Tests
 
             _amazonQueueService.Enqueue(id);
 
-            _fakeAmazonSqs.Verify(mock => mock.SendMessage(
-                It.Is<SendMessageRequest>(c => c.QueueUrl == "http://queueurl.aws.com" && c.MessageBody == idAsString)
+            _fakeAmazonSqs.Verify(mock => 
+                mock.SendMessage(It.Is<SendMessageRequest>(parameters => parameters.QueueUrl == "http://queueurl.aws.com" && parameters.MessageBody == idAsString)
             ), Times.Once);
         }
 
@@ -142,7 +142,7 @@ namespace SimpleAmazonSQS.Tests
             var messages = _amazonQueueService.Dequeue(messageCount: 10).ToList();
 
             _fakeAmazonSqs.Verify(
-                mock => mock.ReceiveMessage(It.Is<ReceiveMessageRequest>(p => p.QueueUrl == "http://queueurl.aws.com" && p.MaxNumberOfMessages == 10)
+                mock => mock.ReceiveMessage(It.Is<ReceiveMessageRequest>(parameters => parameters.QueueUrl == "http://queueurl.aws.com" && parameters.MaxNumberOfMessages == 10)
             ), Times.Once);
         }
 
@@ -240,7 +240,21 @@ namespace SimpleAmazonSQS.Tests
             _amazonQueueService.DeleteMessage("receiptHandle");
 
             _fakeAmazonSqs.Verify(
-                c => c.DeleteMessage(It.Is<DeleteMessageRequest>(p => p.QueueUrl == "http://queueurl.aws.com" && p.ReceiptHandle == "receiptHandle")), Times.Once);
+                c => c.DeleteMessage(It.Is<DeleteMessageRequest>(parameters => parameters.QueueUrl == "http://queueurl.aws.com" && parameters.ReceiptHandle == "receiptHandle")), Times.Once);
+        }
+
+        [Test]
+        public void Count_ShouldCallGetQueueAttributesOnAmazonClient()
+        {
+            var messageCount = _amazonQueueService.Count();
+
+            _fakeAmazonSqs.Verify(mock=>
+                mock.GetQueueAttributes(It.Is<GetQueueAttributesRequest>(parameters =>
+                    parameters.QueueUrl == "http://queueurl.aws.com" &&
+                    parameters.AttributeNames[0] == "ApproximateNumberOfMessages")), 
+                    
+                Times.Once()
+            );
         }
     }
 }
