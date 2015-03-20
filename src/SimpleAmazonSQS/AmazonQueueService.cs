@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using Amazon;
 using Amazon.SQS;
+using System.Linq;
 using Amazon.SQS.Model;
-using SimpleAmazonSQS.Configuration;
 using SimpleAmazonSQS.Exception;
+using System.Collections.Generic;
+using SimpleAmazonSQS.Configuration;
 
 namespace SimpleAmazonSQS
 {
