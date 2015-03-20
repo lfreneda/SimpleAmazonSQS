@@ -1,0 +1,1 @@
+..\.nuget\NuGet.exe pack ..\src\SimpleAmazonSQS\SimpleAmazonSQS.csproj -Prop Configuration=Release

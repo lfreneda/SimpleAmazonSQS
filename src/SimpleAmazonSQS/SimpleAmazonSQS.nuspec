@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>lfreneda</authors>
+    <owners>lfreneda</owners>
+    <licenseUrl>https://raw.githubusercontent.com/minutoseguros/SimpleAmazonSQS/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/minutoseguros/SimpleAmazonSQS</projectUrl>
+    <iconUrl>https://cdn-minuto.s3-sa-east-1.amazonaws.com/content/images/site/tsuru.ico</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>
+      Basic implementation \o\
+    </releaseNotes>
+    <copyright>Copyright 2015</copyright>
+    <tags>sqs amazon guid queue dequeue message messages simple queue service aws</tags>
+    <dependencies>
+      <dependency id="AWSSDK" />
+    </dependencies>
+  </metadata>
+</package>

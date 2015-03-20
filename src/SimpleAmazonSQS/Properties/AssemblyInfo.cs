@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("SimpleAmazonSQS")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("A higher-level interface for Amazon SQS in .NET, which basically queue n dequeue guid's")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("SimpleAmazonSQS")]
