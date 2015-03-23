@@ -45,7 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AmazonQueueService.cs" />
+    <Compile Include="ISimpleAmazonQueueService.cs" />
+    <Compile Include="SimpleAmazonQueueService.cs" />
     <Compile Include="Configuration\AppSettingsConfiguration.cs" />
     <Compile Include="Configuration\CustomConfiguration.cs" />
     <Compile Include="Configuration\IConfiguration.cs" />

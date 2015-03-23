@@ -9,23 +9,23 @@ using SimpleAmazonSQS.Configuration;
 
 namespace SimpleAmazonSQS
 {
-    public class AmazonQueueService
+    public class SimpleAmazonQueueService : ISimpleAmazonQueueService
     {
         private readonly IConfiguration _configuration;
         private readonly IAmazonSQS _amazonSqsClient;
         private bool? _queueExists = null;
 
-        protected AmazonQueueService()
+        protected SimpleAmazonQueueService()
         {
         }
 
-        internal AmazonQueueService(IConfiguration configuration, IAmazonSQS amazonSqsClient)
+        internal SimpleAmazonQueueService(IConfiguration configuration, IAmazonSQS amazonSqsClient)
         {
             _configuration = configuration;
             _amazonSqsClient = amazonSqsClient;
         }
 
-        public AmazonQueueService(IConfiguration configuration)
+        public SimpleAmazonQueueService(IConfiguration configuration)
             : this(configuration, AWSClientFactory.CreateAmazonSQSClient(configuration.AccessKey, configuration.SecretKey, new AmazonSQSConfig { ServiceURL = configuration.ServiceUrl }))
         {
 
