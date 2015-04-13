@@ -6,8 +6,8 @@
     <title>$title$</title>
     <authors>lfreneda</authors>
     <owners>lfreneda</owners>
-    <licenseUrl>https://raw.githubusercontent.com/minutoseguros/SimpleAmazonSQS/master/LICENSE</licenseUrl>
-    <projectUrl>https://github.com/minutoseguros/SimpleAmazonSQS</projectUrl>
+    <licenseUrl>https://github.com/lfreneda/SimpleAmazonSQS/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/lfreneda/SimpleAmazonSQS</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>
