@@ -8,11 +8,10 @@
     <owners>lfreneda</owners>
     <licenseUrl>https://raw.githubusercontent.com/minutoseguros/SimpleAmazonSQS/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/minutoseguros/SimpleAmazonSQS</projectUrl>
-    <iconUrl>https://cdn-minuto.s3-sa-east-1.amazonaws.com/content/images/site/tsuru.ico</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>
-      Basic implementation \o\
+      Framework downgrade
     </releaseNotes>
     <copyright>Copyright 2015</copyright>
     <tags>sqs amazon guid queue dequeue message messages simple queue service aws</tags>
