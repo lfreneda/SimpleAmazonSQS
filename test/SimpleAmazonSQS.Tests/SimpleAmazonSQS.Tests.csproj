@@ -62,8 +62,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SimpleAmazonQueueServiceDecimalTests.cs" />
+    <Compile Include="SimpleAmazonQueueServiceGuidTests.cs" />
+    <Compile Include="SimpleAmazonQueueServiceIntTests.cs" />
+    <Compile Include="SimpleAmazonQueueServiceLongTests.cs" />
     <Compile Include="SimpleAmazonQueueServiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SimpleAmazonQueueServiceTypeBaseTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\SimpleAmazonSQS\SimpleAmazonSQS.csproj">

@@ -5,11 +5,14 @@ using System.Linq;
 using Amazon.SQS.Model;
 using SimpleAmazonSQS.Exception;
 using System.Collections.Generic;
+using System.ComponentModel;
+using Amazon.Runtime;
 using SimpleAmazonSQS.Configuration;
 
 namespace SimpleAmazonSQS
 {
-    public class SimpleAmazonQueueService : ISimpleAmazonQueueService
+    public class SimpleAmazonQueueService<T> : ISimpleAmazonQueueService<T>
+        where T : struct
     {
         private readonly IConfiguration _configuration;
         private readonly IAmazonSQS _amazonSqsClient;
@@ -26,7 +29,7 @@ namespace SimpleAmazonSQS
         }
 
         public SimpleAmazonQueueService(IConfiguration configuration)
-            : this(configuration, AWSClientFactory.CreateAmazonSQSClient(configuration.AccessKey, configuration.SecretKey, new AmazonSQSConfig { ServiceURL = configuration.ServiceUrl }))
+            : this(configuration, new AmazonSQSClient(new BasicAWSCredentials(configuration.AccessKey, configuration.SecretKey), new AmazonSQSConfig { ServiceURL = configuration.ServiceUrl }))
         {
 
         }
@@ -46,7 +49,7 @@ namespace SimpleAmazonSQS
             return _queueExists.Value;
         }
 
-        public virtual void Enqueue(Guid id)
+        public virtual void Enqueue(T id)
         {
             if (!QueueExists())
             {
@@ -69,7 +72,7 @@ namespace SimpleAmazonSQS
             });
         }
 
-        public IEnumerable<Guid> Dequeue(int messageCount = 1)
+        public IEnumerable<T> Dequeue(int messageCount = 1)
         {
             if (messageCount < 1 || messageCount > 10)
             {
@@ -86,14 +89,27 @@ namespace SimpleAmazonSQS
             {
                 foreach (var message in response.Messages)
                 {
-                    Guid guid;
-                    if (Guid.TryParse(message.Body, out guid))
+                    var value = ConvertValue(message);
+                    if (value != null)
                     {
-                        yield return guid;
+                        yield return (T)value;
                     }
 
                     DeleteMessage(message.ReceiptHandle);
                 }
+            }
+        }
+
+        private static object ConvertValue(Message message)
+        {
+            try
+            {
+                var conversor = TypeDescriptor.GetConverter(typeof (T));
+                return conversor.ConvertFromInvariantString(message.Body);
+            }
+            catch
+            {
+                return null;
             }
         }
 
