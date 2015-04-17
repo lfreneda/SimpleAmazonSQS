@@ -1,13 +1,12 @@
-using System;
 using System.Collections.Generic;
 
 namespace SimpleAmazonSQS
 {
-    public interface ISimpleAmazonQueueService
+    public interface ISimpleAmazonQueueService<T> where T : struct
     {
-        void Enqueue(Guid id);
+        void Enqueue(T id);
         void DeleteMessage(string receiptHandle);
-        IEnumerable<Guid> Dequeue(int messageCount);
+        IEnumerable<T> Dequeue(int messageCount);
         int Count();
     }
 }

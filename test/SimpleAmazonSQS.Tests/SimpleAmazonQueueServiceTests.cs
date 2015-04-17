@@ -16,7 +16,7 @@ namespace SimpleAmazonSQS.Tests
     [TestFixture]
     public class SimpleAmazonQueueServiceTests
     {
-        private SimpleAmazonQueueService _simpleAmazonQueueService;
+        private SimpleAmazonQueueService<int> _simpleAmazonQueueService;
         private Mock<IAmazonSQS> _fakeAmazonSqs;
 
         [TestFixtureSetUp]
@@ -30,10 +30,22 @@ namespace SimpleAmazonSQS.Tests
         public void SetUp()
         {
             _fakeAmazonSqs = new Mock<IAmazonSQS>();
-            _simpleAmazonQueueService = new SimpleAmazonQueueService(
+            _simpleAmazonQueueService = new SimpleAmazonQueueService<int>(
                 configuration: new CustomConfiguration { SecretKey = "FakeSecretKey", AccessKey = "FakeAccessKey", QueueUrl = "http://queueurl.aws.com" },
                 amazonSqsClient: _fakeAmazonSqs.Object
             );
+        }
+
+        [Test]
+        public void Enqueue_IfQueueDoNotExists_ShouldThrowsException()
+        {
+            var amazonQueueService = new Mock<SimpleAmazonQueueService<int>>();
+            amazonQueueService.Setup(c => c.QueueExists()).Returns(false);
+
+            Action act = () => _simpleAmazonQueueService.Enqueue(0);
+
+            act.ShouldThrow<SimpleAmazonSqsException>()
+                .WithMessage("Queue is not available or could not be created.");
         }
 
         [Test]
@@ -79,40 +91,6 @@ namespace SimpleAmazonSQS.Tests
         }
 
         [Test]
-        public void Enqueue_GivenAGuid_ShouldCallAmazonClientWithExpectedData()
-        {
-            _fakeAmazonSqs.Setup(c => c.ListQueues(It.IsAny<ListQueuesRequest>()))
-              .Returns(new ListQueuesResponse
-              {
-                  QueueUrls = new List<string>
-                              {
-                                  "http://queueurl.aws.com"
-                              }
-              });
-
-            var id = Guid.NewGuid();
-            var idAsString = id.ToString();
-
-            _simpleAmazonQueueService.Enqueue(id);
-
-            _fakeAmazonSqs.Verify(mock => 
-                mock.SendMessage(It.Is<SendMessageRequest>(parameters => parameters.QueueUrl == "http://queueurl.aws.com" && parameters.MessageBody == idAsString)
-            ), Times.Once);
-        }
-
-        [Test]
-        public void Enqueue_IfQueueDoNotExists_ShouldThrowsException()
-        {
-            var amazonQueueService = new Mock<SimpleAmazonQueueService>();
-            amazonQueueService.Setup(c => c.QueueExists()).Returns(false);
-
-            Action act = () => _simpleAmazonQueueService.Enqueue(Guid.NewGuid());
-
-            act.ShouldThrow<SimpleAmazonSqsException>()
-                .WithMessage("Queue is not available or could not be created.");
-        }
-
-        [Test]
         public void Dequeue_GivenMessaCountGreaterThan10_ShouldThrowsException()
         {
             Action act = () =>
@@ -147,7 +125,7 @@ namespace SimpleAmazonSQS.Tests
         }
 
         [Test]
-        public void Dequeue_IfAmazonClientReturnNull_ShouldReturnEmptyGuidList()
+        public void Dequeue_IfAmazonClientReturnNull_ShouldReturnEmptyList()
         {
             _fakeAmazonSqs.Setup(c => c.ReceiveMessage(It.IsAny<ReceiveMessageRequest>()))
                           .Returns<ReceiveMessageResponse>(null);
@@ -158,7 +136,7 @@ namespace SimpleAmazonSQS.Tests
         }
 
         [Test]
-        public void Dequeue_IfMessagesReturnedAreEmpty_ShouldReturnEmptyGuidList()
+        public void Dequeue_IfMessagesReturnedAreEmpty_ShouldReturnEmptyList()
         {
             _fakeAmazonSqs.Setup(c => c.ReceiveMessage(It.IsAny<ReceiveMessageRequest>()))
                           .Returns(new ReceiveMessageResponse { Messages = new List<Message>() });
@@ -166,72 +144,6 @@ namespace SimpleAmazonSQS.Tests
             var messages = _simpleAmazonQueueService.Dequeue();
 
             messages.ToList().Should().BeEmpty();
-        }
-
-        [Test]
-        public void Dequeue_GivenMessagesReturnedFromAamazonSqs_ShouldBeParsedToGuidList()
-        {
-            _fakeAmazonSqs.Setup(c => c.ReceiveMessage(It.IsAny<ReceiveMessageRequest>()))
-                          .Returns(new ReceiveMessageResponse
-                          {
-                              Messages = new List<Message>
-                              {
-                                  new Message { Body = "9e3098ce-47c0-4610-9dbc-802a64ebd757" },
-                                  new Message { Body = "9e3098ce-47c0-4610-9dbc-802a64ebd757" },
-                                  new Message { Body = "9e3098ce-47c0-4610-9dbc-802a64ebd757" }
-                              }
-                          });
-
-            var messages = _simpleAmazonQueueService.Dequeue(messageCount: 3);
-
-            messages.ToList().Should().BeEquivalentTo(new[]
-            {
-                new Guid("9e3098ce-47c0-4610-9dbc-802a64ebd757"),
-                new Guid("9e3098ce-47c0-4610-9dbc-802a64ebd757"),
-                new Guid("9e3098ce-47c0-4610-9dbc-802a64ebd757"),
-            });
-        }
-
-        [Test]
-        public void Dequeue_GivenMessageOnQueueThatIsNotAGuid_ShouldBeIgnored()
-        {
-            _fakeAmazonSqs.Setup(c => c.ReceiveMessage(It.IsAny<ReceiveMessageRequest>()))
-                          .Returns(new ReceiveMessageResponse
-                          {
-                              Messages = new List<Message>
-                              {
-                                  new Message { Body = "9e3098ce-47c0-4610-9dbc-802a64ebd757" },
-                                  new Message { Body = "im not a guid :-) what is going to happen?" },
-                                  new Message { Body = "9e3098ce-47c0-4610-9dbc-802a64ebd757" }
-                              }
-                          });
-
-            var messages = _simpleAmazonQueueService.Dequeue(messageCount: 3);
-
-            messages.ToList().Should().BeEquivalentTo(new[]
-            {
-                new Guid("9e3098ce-47c0-4610-9dbc-802a64ebd757"),
-                new Guid("9e3098ce-47c0-4610-9dbc-802a64ebd757"),
-            });
-        }
-
-        [Test]
-        public void Dequeue_WhenDequeing_DeleteMessageShouldBeCalledForEachMessage()
-        {
-            _fakeAmazonSqs.Setup(c => c.ReceiveMessage(It.IsAny<ReceiveMessageRequest>()))
-              .Returns(new ReceiveMessageResponse
-              {
-                  Messages = new List<Message>
-                              {
-                                  new Message { Body = "9e3098ce-47c0-4610-9dbc-802a64ebd757" },
-                                  new Message { Body = "im not a guid :-) what is going to happen?" },
-                                  new Message { Body = "9e3098ce-47c0-4610-9dbc-802a64ebd757" }
-                              }
-              });
-
-            var messages = _simpleAmazonQueueService.Dequeue(messageCount: 3).ToList();
-
-            _fakeAmazonSqs.Verify(c => c.DeleteMessage(It.IsAny<DeleteMessageRequest>()), Times.Exactly(3));
         }
 
         [Test]
@@ -246,15 +158,16 @@ namespace SimpleAmazonSQS.Tests
         [Test]
         public void Count_ShouldCallGetQueueAttributesOnAmazonClient()
         {
-            var messageCount = _simpleAmazonQueueService.Count();
+            _simpleAmazonQueueService.Count();
 
-            _fakeAmazonSqs.Verify(mock=>
+            _fakeAmazonSqs.Verify(mock =>
                 mock.GetQueueAttributes(It.Is<GetQueueAttributesRequest>(parameters =>
                     parameters.QueueUrl == "http://queueurl.aws.com" &&
-                    parameters.AttributeNames[0] == "ApproximateNumberOfMessages")), 
-                    
+                    parameters.AttributeNames[0] == "ApproximateNumberOfMessages")),
+
                 Times.Once()
             );
         }
     }
 }
+
