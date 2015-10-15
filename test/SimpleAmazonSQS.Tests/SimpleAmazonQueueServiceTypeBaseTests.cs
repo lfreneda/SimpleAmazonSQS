@@ -8,6 +8,7 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SimpleAmazonSQS.Configuration;
+using SimpleAmazonSQS.Converters;
 
 namespace SimpleAmazonSQS.Tests
 {
@@ -15,6 +16,7 @@ namespace SimpleAmazonSQS.Tests
     {
         private SimpleAmazonQueueService<T> _simpleAmazonQueueService;
         private Mock<IAmazonSQS> _fakeAmazonSqs;
+        private IConverter _converter;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
@@ -26,11 +28,12 @@ namespace SimpleAmazonSQS.Tests
         [SetUp]
         public void SetUp()
         {
+            _converter = new ConverterFactory<T>().Create();
             _fakeAmazonSqs = new Mock<IAmazonSQS>();
             _simpleAmazonQueueService = new SimpleAmazonQueueService<T>(
                 configuration: new CustomConfiguration { SecretKey = "FakeSecretKey", AccessKey = "FakeAccessKey", QueueUrl = "http://queueurl.aws.com" },
-                amazonSqsClient: _fakeAmazonSqs.Object
-                );
+                amazonSqsClient: _fakeAmazonSqs.Object,
+                converterFactory: new ConverterFactory<T>());
         }
 
         protected abstract T GetEnqueueItem();
@@ -39,7 +42,7 @@ namespace SimpleAmazonSQS.Tests
         {
             return new Message
             {
-                Body = GetEnqueueItem().ToString()
+                Body = _converter.ConvertToString(GetEnqueueItem())
             };
         }
 
@@ -56,7 +59,7 @@ namespace SimpleAmazonSQS.Tests
                 });
 
             var id = GetEnqueueItem();
-            var idAsString = id.ToString();
+            var idAsString = _converter.ConvertToString(id);
 
             _simpleAmazonQueueService.Enqueue(id);
 
@@ -98,7 +101,7 @@ namespace SimpleAmazonSQS.Tests
                     Messages = new List<Message>
                     {
                         CreateMessageWithCorrectFormatString(),
-                new Message() { Body = "i'm invalid message" },
+                        new Message() { Body = "i'm invalid message" },
                         CreateMessageWithCorrectFormatString(),
                     }
                 });

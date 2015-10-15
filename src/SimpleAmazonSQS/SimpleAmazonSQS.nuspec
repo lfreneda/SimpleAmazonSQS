@@ -11,6 +11,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>
+      2015-10-15 - Created a message struct in order to transport full json message to AWS sqs queue.
       Framework downgrade
     </releaseNotes>
     <copyright>Copyright 2015</copyright>
