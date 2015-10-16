@@ -11,7 +11,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>
-      2015-10-15 - Created a message struct in order to transport full json message to AWS sqs queue.
+      2015-10-15 - Allowed to work with other types than struct. The reference type messages are transported in JSON format.
       Framework downgrade
     </releaseNotes>
     <copyright>Copyright 2015</copyright>

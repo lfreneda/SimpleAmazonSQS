@@ -11,7 +11,6 @@ using SimpleAmazonSQS.Converters;
 namespace SimpleAmazonSQS
 {
     public class SimpleAmazonQueueService<T> : ISimpleAmazonQueueService<T>
-        where T : struct
     {
         private readonly IConfiguration _configuration;
         private readonly IAmazonSQS _amazonSqsClient;
@@ -22,7 +21,7 @@ namespace SimpleAmazonSQS
         {
         }
 
-        internal SimpleAmazonQueueService(IConfiguration configuration, IAmazonSQS amazonSqsClient, ConverterFactory<T> converterFactory)
+        internal SimpleAmazonQueueService(IConfiguration configuration, IAmazonSQS amazonSqsClient, IConverterFactory converterFactory)
             : this()
         {
             _configuration = configuration;

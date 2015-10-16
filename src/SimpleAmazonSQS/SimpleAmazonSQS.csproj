@@ -53,11 +53,10 @@
   <ItemGroup>
     <Compile Include="Converters\ConverterFactory.cs" />
     <Compile Include="Converters\IConverter.cs" />
-    <Compile Include="IQueueMessage.cs" />
+    <Compile Include="Converters\IConverterFactory.cs" />
     <Compile Include="ISimpleAmazonQueueService.cs" />
-    <Compile Include="QueueMessage.cs" />
-    <Compile Include="Converters\DefaultConverter.cs" />
-    <Compile Include="Converters\QueueMessageConverter.cs" />
+    <Compile Include="Converters\ValueTypeConverter.cs" />
+    <Compile Include="Converters\ReferenceTypeConverter.cs" />
     <Compile Include="SimpleAmazonQueueService.cs" />
     <Compile Include="Configuration\AppSettingsConfiguration.cs" />
     <Compile Include="Configuration\CustomConfiguration.cs" />

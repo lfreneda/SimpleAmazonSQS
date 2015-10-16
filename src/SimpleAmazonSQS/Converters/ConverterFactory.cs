@@ -1,19 +1,15 @@
-﻿using System.Linq;
-namespace SimpleAmazonSQS.Converters
+﻿namespace SimpleAmazonSQS.Converters
 {
-    internal class ConverterFactory<T>
-        where T : struct
+    internal class ConverterFactory<T> : IConverterFactory
     {
         public virtual IConverter Create()
         {
             var type = typeof (T);
-
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof (QueueMessage<>))
-            {
-                return new QueueMessageConverter(type.GetGenericArguments().First());
-            }
-
-            return new DefaultConverter<T>();
+            
+            return
+                type.IsValueType ?
+                    new ValueTypeConverter<T>() as IConverter: 
+                    new ReferenceTypeConverter<T>();
         }
     }
 }

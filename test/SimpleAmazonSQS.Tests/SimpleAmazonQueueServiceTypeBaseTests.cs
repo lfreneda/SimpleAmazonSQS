@@ -12,7 +12,7 @@ using SimpleAmazonSQS.Converters;
 
 namespace SimpleAmazonSQS.Tests
 {
-    public abstract class SimpleAmazonQueueServiceTypeBaseTests<T> where T : struct
+    public abstract class SimpleAmazonQueueServiceTypeBaseTests<T> 
     {
         private SimpleAmazonQueueService<T> _simpleAmazonQueueService;
         private Mock<IAmazonSQS> _fakeAmazonSqs;

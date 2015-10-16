@@ -3,15 +3,16 @@
 namespace SimpleAmazonSQS.Tests
 {
     [TestFixture]
-    public class SimpleAmazonQueueServiceQueueMessage : SimpleAmazonQueueServiceTypeBaseTests<QueueMessage<FakeBody>>
+    public class SimpleAmazonQueueServiceWithReferenceType : SimpleAmazonQueueServiceTypeBaseTests<FakePerson>
     {
-        protected override QueueMessage<FakeBody> GetEnqueueItem()
+        protected override FakePerson GetEnqueueItem()
         {
-            return new QueueMessage<FakeBody>(new FakeBody
+            return new FakePerson
             {
                 FamilyName = "Gandini",
-                Birthname = "Dexter"
-            });
+                Birthname = "Dexter",
+                PersonGender = FakePerson.Gender.Female  
+            };
         }
     }
 }
