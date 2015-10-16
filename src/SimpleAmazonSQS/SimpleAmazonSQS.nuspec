@@ -11,6 +11,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>
+      2015-10-15 - Allowed to work with other types than struct. The reference type messages are transported in JSON format.
       Framework downgrade
     </releaseNotes>
     <copyright>Copyright 2015</copyright>

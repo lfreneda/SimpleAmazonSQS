@@ -9,6 +9,7 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SimpleAmazonSQS.Configuration;
+using SimpleAmazonSQS.Converters;
 using SimpleAmazonSQS.Exception;
 
 namespace SimpleAmazonSQS.Tests
@@ -32,7 +33,8 @@ namespace SimpleAmazonSQS.Tests
             _fakeAmazonSqs = new Mock<IAmazonSQS>();
             _simpleAmazonQueueService = new SimpleAmazonQueueService<int>(
                 configuration: new CustomConfiguration { SecretKey = "FakeSecretKey", AccessKey = "FakeAccessKey", QueueUrl = "http://queueurl.aws.com" },
-                amazonSqsClient: _fakeAmazonSqs.Object
+                amazonSqsClient: _fakeAmazonSqs.Object,
+                converterFactory: new ConverterFactory<int>()
             );
         }
 

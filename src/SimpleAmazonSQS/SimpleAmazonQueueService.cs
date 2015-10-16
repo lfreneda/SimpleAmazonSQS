@@ -1,37 +1,39 @@
 ﻿using System;
-using Amazon;
 using Amazon.SQS;
 using System.Linq;
 using Amazon.SQS.Model;
 using SimpleAmazonSQS.Exception;
 using System.Collections.Generic;
-using System.ComponentModel;
 using Amazon.Runtime;
 using SimpleAmazonSQS.Configuration;
+using SimpleAmazonSQS.Converters;
 
 namespace SimpleAmazonSQS
 {
     public class SimpleAmazonQueueService<T> : ISimpleAmazonQueueService<T>
-        where T : struct
     {
         private readonly IConfiguration _configuration;
         private readonly IAmazonSQS _amazonSqsClient;
+        private readonly IConverter _converter;
         private bool? _queueExists = null;
 
         protected SimpleAmazonQueueService()
         {
         }
 
-        internal SimpleAmazonQueueService(IConfiguration configuration, IAmazonSQS amazonSqsClient)
+        internal SimpleAmazonQueueService(IConfiguration configuration, IAmazonSQS amazonSqsClient, IConverterFactory converterFactory)
+            : this()
         {
             _configuration = configuration;
             _amazonSqsClient = amazonSqsClient;
+            _converter = converterFactory.Create();
         }
 
         public SimpleAmazonQueueService(IConfiguration configuration)
-            : this(configuration, new AmazonSQSClient(new BasicAWSCredentials(configuration.AccessKey, configuration.SecretKey), new AmazonSQSConfig { ServiceURL = configuration.ServiceUrl }))
+            : this(configuration, 
+                  new AmazonSQSClient(new BasicAWSCredentials(configuration.AccessKey, configuration.SecretKey), new AmazonSQSConfig { ServiceURL = configuration.ServiceUrl }),
+                  new ConverterFactory<T>())
         {
-
         }
 
         public virtual bool QueueExists()
@@ -59,7 +61,7 @@ namespace SimpleAmazonSQS
             _amazonSqsClient.SendMessage(new SendMessageRequest
             {
                 QueueUrl = _configuration.QueueUrl,
-                MessageBody = id.ToString()
+                MessageBody = _converter.ConvertToString(id)
             });
         }
 
@@ -100,12 +102,11 @@ namespace SimpleAmazonSQS
             }
         }
 
-        private static object ConvertValue(Message message)
+        private object ConvertValue(Message message)
         {
             try
             {
-                var conversor = TypeDescriptor.GetConverter(typeof (T));
-                return conversor.ConvertFromInvariantString(message.Body);
+                return _converter.ConvertFromString(message.Body);
             }
             catch
             {
