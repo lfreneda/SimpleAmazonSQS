@@ -10,7 +10,7 @@ using SimpleAmazonSQS.Converters;
 
 namespace SimpleAmazonSQS
 {
-    public class SimpleAmazonQueueService<T> : ISimpleAmazonQueueService<T>
+    public class SimpleAmazonQueueService<T> : ISimpleAmazonQueueService<T>, IDisposable
     {
         private readonly IConfiguration _configuration;
         private readonly IAmazonSQS _amazonSqsClient;
@@ -124,6 +124,14 @@ namespace SimpleAmazonSQS
 
             if (response == null) return 0;
             return response.ApproximateNumberOfMessages;
+        }
+
+        public void Dispose()
+        {
+            if (_amazonSqsClient != null)
+            {
+                _amazonSqsClient.Dispose();
+            }
         }
     }
 }

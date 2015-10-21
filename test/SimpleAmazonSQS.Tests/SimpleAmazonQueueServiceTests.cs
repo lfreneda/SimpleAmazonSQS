@@ -170,6 +170,17 @@ namespace SimpleAmazonSQS.Tests
                 Times.Once()
             );
         }
+
+        [Test]
+        public void Dispose_ShouldCallDisposeOnAmazonClient()
+        {
+            _simpleAmazonQueueService.Dispose();
+
+            _fakeAmazonSqs.Verify(mock =>
+                mock.Dispose(),
+                Times.Once()
+            );
+        }
     }
 }
 
