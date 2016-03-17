@@ -6,5 +6,6 @@
         string SecretKey { get; }
         string QueueUrl { get; }
         string ServiceUrl { get; }
+        int? VisibilityTimeout { get; }
     }
 }
