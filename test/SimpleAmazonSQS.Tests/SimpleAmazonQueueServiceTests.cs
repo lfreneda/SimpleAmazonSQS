@@ -18,7 +18,9 @@ namespace SimpleAmazonSQS.Tests
     public class SimpleAmazonQueueServiceTests
     {
         private SimpleAmazonQueueService<int> _simpleAmazonQueueService;
+
         private Mock<IAmazonSQS> _fakeAmazonSqs;
+        private Mock<IConfiguration> _fakeConfiguration;
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
@@ -31,8 +33,15 @@ namespace SimpleAmazonSQS.Tests
         public void SetUp()
         {
             _fakeAmazonSqs = new Mock<IAmazonSQS>();
+
+            _fakeConfiguration = new Mock<IConfiguration>();
+            _fakeConfiguration.SetupGet(e => e.AccessKey).Returns("FakeAccessKey");
+            _fakeConfiguration.SetupGet(e => e.SecretKey).Returns("FakeSecretKey");
+            _fakeConfiguration.SetupGet(e => e.QueueUrl).Returns("http://queueurl.aws.com");
+            _fakeConfiguration.SetupGet(e => e.VisibilityTimeout).Returns(60);
+
             _simpleAmazonQueueService = new SimpleAmazonQueueService<int>(
-                configuration: new CustomConfiguration { SecretKey = "FakeSecretKey", AccessKey = "FakeAccessKey", QueueUrl = "http://queueurl.aws.com" },
+                configuration: _fakeConfiguration.Object,
                 amazonSqsClient: _fakeAmazonSqs.Object,
                 converterFactory: new ConverterFactory<int>()
             );
@@ -181,6 +190,35 @@ namespace SimpleAmazonSQS.Tests
                 Times.Once()
             );
         }
+
+        [Test]
+        public void Dequeue_WhenVisibiliyTimeoutIsNotFilled_ShouldUseDefaultVisibilityTimeout()
+        {
+            _fakeConfiguration.SetupGet(e => e.VisibilityTimeout).Returns((int?)null);
+
+            ReceiveMessageRequest receiveMessageRequestCallback = null;
+
+            _fakeAmazonSqs
+                .Setup(e => e.ReceiveMessage(It.IsAny<ReceiveMessageRequest>()))
+                .Callback<ReceiveMessageRequest>(callback => receiveMessageRequestCallback = callback);
+
+            var messages = _simpleAmazonQueueService.Dequeue(messageCount: 10).ToList();
+
+            Assert.AreEqual(30, receiveMessageRequestCallback.VisibilityTimeout);
+        }
+
+        [Test]
+        public void Dequeue_ShouldCallReceiveMessageWithExpectedVisibiliyTimeout()
+        {
+            ReceiveMessageRequest receiveMessageRequestCallback = null;
+
+            _fakeAmazonSqs
+                .Setup(e => e.ReceiveMessage(It.IsAny<ReceiveMessageRequest>()))
+                .Callback<ReceiveMessageRequest>(callback => receiveMessageRequestCallback = callback);
+
+            var messages = _simpleAmazonQueueService.Dequeue(messageCount: 10).ToList();
+
+            Assert.AreEqual(60, receiveMessageRequestCallback.VisibilityTimeout);
+        }
     }
 }
-

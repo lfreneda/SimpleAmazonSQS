@@ -82,7 +82,6 @@ namespace SimpleAmazonSQS
             {
                 throw new ArgumentOutOfRangeException("messageCount", "messageCount must be between 1 and 10.");
             }
-
             
             var response = _amazonSqsClient.ReceiveMessage(new ReceiveMessageRequest
             {
