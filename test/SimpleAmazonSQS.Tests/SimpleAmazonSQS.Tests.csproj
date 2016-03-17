@@ -74,6 +74,7 @@
     <Compile Include="SimpleAmazonQueueServiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleAmazonQueueServiceTypeBaseTests.cs" />
+    <Compile Include="SimpleAmazonQueueTransactionalServiceTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\SimpleAmazonSQS\SimpleAmazonSQS.csproj">

@@ -17,6 +17,8 @@ namespace SimpleAmazonSQS
         private readonly IConverter _converter;
         private bool? _queueExists = null;
 
+        private const int DefaultVisibilityTimeout = 30;
+
         protected SimpleAmazonQueueService()
         {
         }
@@ -80,26 +82,38 @@ namespace SimpleAmazonSQS
             {
                 throw new ArgumentOutOfRangeException("messageCount", "messageCount must be between 1 and 10.");
             }
-
+            
             var response = _amazonSqsClient.ReceiveMessage(new ReceiveMessageRequest
             {
                 QueueUrl = _configuration.QueueUrl,
-                MaxNumberOfMessages = messageCount
+                MaxNumberOfMessages = messageCount,
+                VisibilityTimeout = _configuration.VisibilityTimeout ?? DefaultVisibilityTimeout
             });
 
-            if (response != null && response.Messages.Any())
+            if (response == null || response.Messages == null)
             {
-                foreach (var message in response.Messages)
-                {
-                    var value = ConvertValue(message);
-                    if (value != null)
-                    {
-                        yield return (T)value;
-                    }
+                yield break;
+            }
 
+            foreach (var message in response.Messages)
+            {
+                var value = ConvertValue(message);
+
+                if (value != null)
+                {
+                    yield return GetResponse(value, message.ReceiptHandle);
+                }
+                else
+                {
                     DeleteMessage(message.ReceiptHandle);
                 }
             }
+        }
+
+        protected virtual T GetResponse(object value, string receiptHandle)
+        {
+            DeleteMessage(receiptHandle);
+            return (T)value;
         }
 
         private object ConvertValue(Message message)
