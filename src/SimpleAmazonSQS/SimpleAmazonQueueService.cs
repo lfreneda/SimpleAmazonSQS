@@ -1,10 +1,10 @@
 ﻿using System;
-using Amazon.SQS;
+using System.Collections.Generic;
 using System.Linq;
+using Amazon.Runtime;
+using Amazon.SQS;
 using Amazon.SQS.Model;
 using SimpleAmazonSQS.Exception;
-using System.Collections.Generic;
-using Amazon.Runtime;
 using SimpleAmazonSQS.Configuration;
 using SimpleAmazonSQS.Converters;
 
@@ -78,17 +78,7 @@ namespace SimpleAmazonSQS
 
         public IEnumerable<T> Dequeue(int messageCount = 1)
         {
-            if (messageCount < 1 || messageCount > 10)
-            {
-                throw new ArgumentOutOfRangeException("messageCount", "messageCount must be between 1 and 10.");
-            }
-            
-            var response = _amazonSqsClient.ReceiveMessage(new ReceiveMessageRequest
-            {
-                QueueUrl = _configuration.QueueUrl,
-                MaxNumberOfMessages = messageCount,
-                VisibilityTimeout = _configuration.VisibilityTimeout ?? DefaultVisibilityTimeout
-            });
+            var response = GetReceiveMessage(messageCount);
 
             if (response == null || response.Messages == null)
             {
@@ -101,30 +91,10 @@ namespace SimpleAmazonSQS
 
                 if (value != null)
                 {
-                    yield return GetResponse(value, message.ReceiptHandle);
+                    yield return (T)value;
                 }
-                else
-                {
-                    DeleteMessage(message.ReceiptHandle);
-                }
-            }
-        }
 
-        protected virtual T GetResponse(object value, string receiptHandle)
-        {
-            DeleteMessage(receiptHandle);
-            return (T)value;
-        }
-
-        private object ConvertValue(Message message)
-        {
-            try
-            {
-                return _converter.ConvertFromString(message.Body);
-            }
-            catch
-            {
-                return null;
+                DeleteMessage(message.ReceiptHandle);
             }
         }
 
@@ -145,6 +115,38 @@ namespace SimpleAmazonSQS
             if (_amazonSqsClient != null)
             {
                 _amazonSqsClient.Dispose();
+            }
+        }
+
+        protected ReceiveMessageResponse GetReceiveMessage(int messageCount)
+        {
+            ValidateMessageCount(messageCount);
+
+            return _amazonSqsClient.ReceiveMessage(new ReceiveMessageRequest
+            {
+                QueueUrl = _configuration.QueueUrl,
+                MaxNumberOfMessages = messageCount,
+                VisibilityTimeout = _configuration.VisibilityTimeout ?? DefaultVisibilityTimeout
+            });
+        }
+
+        protected object ConvertValue(Message message)
+        {
+            try
+            {
+                return _converter.ConvertFromString(message.Body);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private void ValidateMessageCount(int messageCount)
+        {
+            if (messageCount < 1 || messageCount > 10)
+            {
+                throw new ArgumentOutOfRangeException("messageCount", "messageCount must be between 1 and 10.");
             }
         }
     }

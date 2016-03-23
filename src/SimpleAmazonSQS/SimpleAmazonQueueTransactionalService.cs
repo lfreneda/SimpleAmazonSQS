@@ -1,11 +1,12 @@
-﻿using Amazon.SQS;
+﻿using System.Collections.Generic;
+using Amazon.SQS;
 using SimpleAmazonSQS.Configuration;
 using SimpleAmazonSQS.Converters;
 using SimpleAmazonSQS.Entities;
 
 namespace SimpleAmazonSQS
 {
-    public class SimpleAmazonQueueTransactionalService<T> : SimpleAmazonQueueService<DequeueResponse<T>>
+    public class SimpleAmazonQueueTransactionalService<T> : SimpleAmazonQueueService<T>
     {
         public SimpleAmazonQueueTransactionalService(IConfiguration configuration)
             : base(configuration)
@@ -17,14 +18,24 @@ namespace SimpleAmazonSQS
         {
         }
 
-        protected override DequeueResponse<T> GetResponse(object value, string receiptHandle)
+        public new virtual IEnumerable<DequeueResponse<T>> Dequeue(int messageCount)
         {
-            return new DequeueResponse<T>(receiptHandle, (T)value);
-        }
+            var response = GetReceiveMessage(messageCount);
 
-        public void Complete(DequeueResponse<T> dequeueResponse)
-        {
-            DeleteMessage(dequeueResponse.ReceiptHandle);
+            if (response == null || response.Messages == null)
+            {
+                yield break;
+            }
+
+            foreach (var message in response.Messages)
+            {
+                var value = ConvertValue(message);
+
+                if (value != null)
+                {
+                    yield return new DequeueResponse<T>(message.ReceiptHandle, (T)value);
+                }
+            }
         }
     }
 }

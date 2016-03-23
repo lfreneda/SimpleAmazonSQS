@@ -124,7 +124,7 @@ namespace SimpleAmazonSQS.Tests
                     Messages = new List<Message>
                     {
                         CreateMessageWithCorrectFormatString(),
-                      new Message() { Body = "i'm invalid message" },
+                        new Message() { Body = "i'm invalid message" },
                         CreateMessageWithCorrectFormatString(),
                     }
                 });

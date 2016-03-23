@@ -102,7 +102,7 @@ namespace SimpleAmazonSQS.Tests
         }
 
         [Test]
-        public void Dequeue_GivenMessaCountGreaterThan10_ShouldThrowsException()
+        public void Dequeue_GivenMessageCountGreaterThan10_ShouldThrowsException()
         {
             Action act = () =>
             {
