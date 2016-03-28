@@ -13,6 +13,10 @@ namespace SimpleAmazonSQS
         {
         }
 
+        protected SimpleAmazonQueueTransactionalService()
+        {
+        }
+
         internal SimpleAmazonQueueTransactionalService(IConfiguration configuration, IAmazonSQS amazonSqsClient, IConverterFactory converterFactory)
             : base(configuration, amazonSqsClient, converterFactory)
         {
